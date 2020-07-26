@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<script>
+    navigator.getUserMedia = (navigator.getUserMedia ||
+    navigator.webkitGetUserMedia ||
+    navigator.mozGetUserMedia );
+    if (navigator.getUserMedia)
+    {
+        navigator.getUserMedia(
+            {
+                video:true,
+                audio:false
+            },
+            function(stream) { /* do-say something */ },
+            function(error) { alert('Something went wrong. (error code ' + error.code + ')');
+                return; }
+        );
+    }
+    else {
+        alert("Sorry, the browser you are using doesn't support the HTML5 webcam API");
+    }
+</script>
+    <style>
+        .camcontent{
+            display: block;
+            position: relative;
+            overflow: hidden;
+            height: 480px;
+            margin: auto;
+        }
+        .cambuttons button {
+            border-radius: 15px;
+            font-size: 18px;
+        }
+        .cambuttons button:hover {
+            cursor: pointer;
+            border-radius: 15px;
+            background: #00dd00 ;    /* green */
+        }
+    </style>
+</head>
+<body>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script>
+    // Put event listeners into place
+    window.addEventListener("DOMContentLoaded", function() {
+        // Grab elements, create settings, etc.
+        var canvas = document.getElementById("canvas"),
+            context = canvas.getContext("2d"),
+            video = document.getElementById("video"),
+            videoObj = { "video": true },
+            image_format= "jpeg",
+            jpeg_quality= 85,
+            errBack = function(error) {
+                console.log("Video capture error: ", error.code);
+            };
+
+
+        // Put video listeners into place
+        if(navigator.getUserMedia) { // Standard
+            navigator.getUserMedia(videoObj, function(stream) {
+                //video.src = stream;
+                video.srcObject = stream;
+                video.play();
+                $("#snap").show();
+            }, errBack);
+        } else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
+            navigator.webkitGetUserMedia(videoObj, function(stream){
+                video.src = window.webkitURL.createObjectURL(stream);
+                video.play();
+                $("#snap").show();
+            }, errBack);
+        } else if(navigator.mozGetUserMedia) { // moz-prefixed
+            navigator.mozGetUserMedia(videoObj, function(stream){
+                video.src = window.URL.createObjectURL(stream);
+                video.play();
+                $("#snap").show();
+            }, errBack);
+        }
+        // video.play();       these 2 lines must be repeated above 3 times
+        // $("#snap").show();  rather than here once, to keep "capture" hidden
+        //                     until after the webcam has been activated.
+
+        // Get-Save Snapshot - image
+        document.getElementById("snap").addEventListener("click", function() {
+            context.drawImage(video, 0, 0, 640, 480);
+            // the fade only works on firefox?
+            $("#video").fadeOut("slow");
+            $("#canvas").fadeIn("slow");
+            $("#snap").hide();
+            $("#reset").show();
+            $("#upload").show();
+        });
+        // reset - clear - to Capture New Photo
+        document.getElementById("reset").addEventListener("click", function() {
+            $("#video").fadeIn("slow");
+            $("#canvas").fadeOut("slow");
+            $("#snap").show();
+            $("#reset").hide();
+            $("#upload").hide();
+        });
+        // Upload image to sever
+        document.getElementById("upload").addEventListener("click", function(){
+            var dataUrl = canvas.toDataURL();
+            $("#uploading").show();
+           
+        });
+    }, false);
+
+</script>
+
+
+<div class="camcontent">
+    <video id="video" autoplay></video>
+    <canvas id="canvas" width="640" height="480"> </canvas>
+</div>
+<div class="cambuttons">
+    <button id="snap" style="display:none;">  Capture </button>
+    <button id="reset" style="display:none;">  Reset  </button>
+    <button id="upload" style="display:none;"> Upload </button>
+  
+</div>
+<h1>{{dataUrl}}</h1>
+</body>
+</html>
