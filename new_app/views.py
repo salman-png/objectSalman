@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate,login,logout
 # from new_app.models import info,Document
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
-import matplotlib.pyplot as plt
+
 import pickle
 import keras
 from keras.preprocessing import image
