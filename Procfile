@@ -1,1 +1,1 @@
-web: gunicorn new_app:app
+web: gunicorn auth.wsgi --log-file-
